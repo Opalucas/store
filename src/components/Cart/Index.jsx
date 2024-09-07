@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { CartContext } from "../../context/CartContext";
 
 const Cart = () => {
-  const {addToCart} = useContext(CartContext)
   const [cart, setCart] = useState(
     () => JSON.parse(localStorage.getItem("cart")) || []
   );
@@ -18,7 +16,7 @@ const Cart = () => {
   const updateQuantity = (index, change) => {
     const newCart = [...cart];
     newCart[index].quantity = Math.max(1, newCart[index].quantity + change);
-    addToCart(newCart);
+    setCart(newCart);
   };
 
   const removeItem = (index) => {
