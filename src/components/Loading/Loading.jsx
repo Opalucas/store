@@ -3,7 +3,7 @@ import LoadingSpin from "react-loading-spin";
 
 const Loading = () => {
   return (
-    <div className={"ExampleOfUsage"}>
+    <div className="loading p-5">
       <LoadingSpin
         primaryColor="blue"
         numberOfRotationsInAnimation={1}

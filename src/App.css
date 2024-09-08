@@ -1,7 +1,7 @@
 /* @import './sass/style.css' */
 
 #root {
-  max-width: 1080px;
+  max-width: 100%;
   min-height: 100vh !important;
   padding: 5px;
   background-color: white;

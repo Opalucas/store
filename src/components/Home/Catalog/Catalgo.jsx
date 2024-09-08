@@ -50,7 +50,7 @@ const Catalog = () => {
         <div className="row">
           {books && books.length ? (
             books.map((item, index) => (
-              <div key={index} className="col-lg-4 col-md-2 mb-3">
+              <div key={index} className="col-lg-3 col-md-4 col-sm-4 mb-3">
                 <div className="card h-100">
                   <img
                     src={

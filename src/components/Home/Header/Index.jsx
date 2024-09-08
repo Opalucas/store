@@ -6,7 +6,6 @@ const Header = () => {
   const { cartQuantity } = useContext(CartContext);
 
   useEffect(() => {
-    console.log("Quantidade de itens no carrinho mudou:", cartQuantity);
   }, [cartQuantity]);
 
   return <NavBar cartQuantity={cartQuantity} />;
