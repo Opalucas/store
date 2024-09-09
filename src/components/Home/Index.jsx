@@ -11,9 +11,7 @@ const Home = () => {
             <div className="col-md-2">
               <Filters />
             </div>
-            <div className="col-md-1">
-            </div>
-            <div className="col-md-6">
+            <div className="col-md-10">
               <Catalog />
             </div>
           </div>

@@ -5,6 +5,7 @@ import { FilterContext } from "../../../context/FilterContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CartContext } from "../../../context/CartContext";
+import { formatDate } from "../../../utils/Convert";
 
 const Catalog = () => {
   const { addToCart } = useContext(CartContext);
@@ -29,28 +30,35 @@ const Catalog = () => {
 
   const handleAddToCart = (book) => {
     addToCart(book);
-    toast.success(`${book.volumeInfo?.title || "Livro"} adicionado ao carrinho!`, {
-      position: "top-right",
-      autoClose: 2000,
-    });
+    toast.success(
+      `${book.volumeInfo?.title || "Livro"} adicionado ao carrinho!`,
+      {
+        position: "top-right",
+        autoClose: 2000,
+      }
+    );
   };
 
   const handleOpenModal = (book) => {
     setSelectedBook(book);
+    console.log(book)
     setShowModal(true);
   };
 
   return (
     <>
       <ToastContainer />
-      <div className="row">
-        <div className="d-flex justify-content-between">
+      <div className="container">
+        <div className="d-flex justify-content-between mb-3">
           <h3>Livros</h3>
         </div>
         <div className="row">
           {books && books.length ? (
             books.map((item, index) => (
-              <div key={index} className="col-lg-3 col-md-4 col-sm-4 mb-3">
+              <div
+                key={index}
+                className="col-lg-3 col-md-3 col-sm-4 col-6 mb-3"
+              >
                 <div className="card h-100">
                   <img
                     src={
@@ -58,6 +66,7 @@ const Catalog = () => {
                     }
                     className="card-img-top"
                     alt={item.volumeInfo?.title || "Livro"}
+                    style={{ height: "200px", objectFit: "cover" }}
                   />
                   <div className="card-body">
                     <p>Título: </p>
@@ -71,7 +80,7 @@ const Catalog = () => {
                     </h6>
                   </div>
                   <div className="card-footer">
-                    <div className="d-flex gap-2 mt-1">
+                    <div className="d-flex gap-3 px-1">
                       <button
                         className="btn btn-light btn-sm"
                         onClick={() => handleOpenModal(item)}
@@ -94,7 +103,6 @@ const Catalog = () => {
           )}
         </div>
       </div>
-      {/* Modal para exibir detalhes do livro */}
       {selectedBook && (
         <Modal
           show={showModal}
@@ -121,7 +129,7 @@ const Catalog = () => {
               <div>
                 <h6 className="text-muted">
                   <p>
-                    Por:
+                    Por:&nbsp;
                     {selectedBook.volumeInfo?.authors?.join(", ") ||
                       "Autor desconhecido"}
                   </p>
@@ -132,11 +140,16 @@ const Catalog = () => {
                 </p>
                 <p className="mt-2">
                   <strong>Publicado em: </strong>
-                  {selectedBook.volumeInfo?.publishedDate || "Desconhecido"}
+                  {formatDate(selectedBook.volumeInfo?.publishedDate) ||
+                    "Desconhecido"}
                 </p>
                 <p>
                   <strong>Páginas: </strong>
                   {selectedBook.volumeInfo?.pageCount || "N/A"}
+                </p>
+                <p>
+                  <strong>Editora: </strong>
+                  {selectedBook.volumeInfo?.publisher || "N/A"}
                 </p>
                 <div className="d-flex justify-content-between mt-4">
                   <div>
@@ -148,11 +161,15 @@ const Catalog = () => {
                 </div>
               </div>
             </div>
+            <div>
+              <h5 className="m-2">Sinopse</h5>
+              <p className="mb-0 px-4">{selectedBook.volumeInfo.description}</p>
+            </div>
           </Modal.Body>
           <Modal.Footer>
             <Button
               variant="success"
-              onClick={() => (handleAddToCart(selectedBook))}
+              onClick={() => handleAddToCart(selectedBook)}
             >
               <i className="fa fa-cart-plus px-2"></i>Adicionar ao Carrinho
             </Button>

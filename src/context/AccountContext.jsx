@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext } from 'react';
 
-const AccountContext = createContext();
+export const AccountContext = createContext();
 
 export const useAccount = () => useContext(AccountContext);
 

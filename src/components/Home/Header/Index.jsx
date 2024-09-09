@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import NavBar from "../NavBar/Index";
+import NavBar from "./NavBar/Index";
 import { CartContext } from "../../../context/CartContext";
 
 const Header = () => {

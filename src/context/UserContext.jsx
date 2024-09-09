@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
 import apiAxios from "../services/API";
-
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Loading from "../Loading/Loading";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { formatDate } from "../../utils/Convert";
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -54,14 +55,6 @@ const Orders = () => {
 
     pdf.save("orders.pdf");
   };
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
 
   if (loading) {
     return <Loading />;

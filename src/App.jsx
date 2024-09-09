@@ -21,6 +21,7 @@ import PrivateRoute from "./utils/PrivateRoute";
 import { CartProvider } from "./context/CartContext";
 import { FilterProvider } from "./context/FilterContext";
 import { UserProvider } from "./context/UserContext";
+import { AccountProvider } from "./context/AccountContext";
 import CreatAccount from "./components/Account/CreatAccount";
 
 function App() {
@@ -28,36 +29,38 @@ function App() {
     <CartProvider>
       <FilterProvider>
         <UserProvider>
-          <Router>
-            <Suspense fallback={<Loading />}>
-              <Routes>
-                {/* <Route path="/login" element={<Login />} /> */}
+          <AccountProvider>
+            <Router>
+              <Suspense fallback={<Loading />}>
+                <Routes>
+                  {/* <Route path="/login" element={<Login />} /> */}
 
-                {/* Rotas protegidas */}
-                <Route path="/" element={<PrivateRoute />}>
-                  <Route
-                    element={
-                      <>
-                        <Header />
-                        <Outlet />
-                      </>
-                    }
-                  >
-                    <Route path="/" element={<Home />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/orders" element={<Orders />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/newaccount" element={<CreatAccount />} />
-                    <Route path="/address" element={<AddressForm />} />
-                    {/* <Route path="/success" element={<SuccessPage />} /> */}
+                  {/* Rotas protegidas */}
+                  <Route path="/" element={<PrivateRoute />}>
+                    <Route
+                      element={
+                        <>
+                          <Header />
+                          <Outlet />
+                        </>
+                      }
+                    >
+                      <Route path="/" element={<Home />} />
+                      <Route path="/cart" element={<Cart />} />
+                      <Route path="/orders" element={<Orders />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/newaccount" element={<CreatAccount />} />
+                      <Route path="/address" element={<AddressForm />} />
+                      {/* <Route path="/success" element={<SuccessPage />} /> */}
+                    </Route>
                   </Route>
-                </Route>
 
-                {/* Página 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </Router>
+                  {/* Página 404 */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </Router>
+          </AccountProvider>
         </UserProvider>
       </FilterProvider>
     </CartProvider>

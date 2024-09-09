@@ -27,7 +27,6 @@ export default async function apiAxios({
 }
 
 export async function login(body) {
-  console.log(body);
   try {
     const response = await axios({
       url: `${urlTeste}/api/logar`,
