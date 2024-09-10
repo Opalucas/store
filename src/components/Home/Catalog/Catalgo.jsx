@@ -41,7 +41,6 @@ const Catalog = () => {
 
   const handleOpenModal = (book) => {
     setSelectedBook(book);
-    console.log(book)
     setShowModal(true);
   };
 

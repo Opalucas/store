@@ -32,6 +32,9 @@ const AddressForm = () => {
         metodo: "POST",
         body: finalData,
       });
+      if(response.status == 201){
+        navigate('/login');
+      }
     } catch (error) {
       if (error.response.status == 400) {
         setErrors({ fields: error.response.data.error });

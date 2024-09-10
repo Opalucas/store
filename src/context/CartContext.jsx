@@ -26,10 +26,29 @@ export const CartProvider = ({ children }) => {
     });
   };
 
+  const updateQuantity = (bookId, change) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === bookId
+          ? { ...item, quantity: Math.max(1, item.quantity + change) }
+          : item
+      )
+    );
+  };
+
+  const removeItem = (bookId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== bookId));
+  };
+
+  const removeAll = () => {
+    localStorage.removeItem('cart');
+    setCart([]);
+  }
+
   const cartQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, cartQuantity}}>
+    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeItem, removeAll, cartQuantity }}>
       {children}
     </CartContext.Provider>
   );

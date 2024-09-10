@@ -65,11 +65,6 @@ const NavBar = ({ cartQuantity }) => {
                         </a>
                       </li>
                       <li>
-                        <a className="dropdown-item" href="/profile">
-                          Perfil
-                        </a>
-                      </li>
-                      <li>
                         <a className="dropdown-item" onClick={handleLogout}>
                           Sair
                         </a>
