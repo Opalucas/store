@@ -11,16 +11,15 @@ const Cart = () => {
   );
   const navigate = useNavigate();
 
-  const [step, setStep] = useState("cart"); // Gerenciar as etapas do checkout
+  const [order_id, setOrderId] = useState();
+  const [step, setStep] = useState("cart");
   const [shippingData, setShippingData] = useState({
     fullName: "",
-    address: "",
+    street: "",
     city: "",
     state: "",
-    zipCode: "",
-    country: "",
-    sameAsBilling: true,
-    billingAddress: "",
+    neighborhood: "",
+    number: "",
   });
   const [orderSummary, setOrderSummary] = useState(null);
 
@@ -43,34 +42,63 @@ const Cart = () => {
     setCart(newCart);
   };
 
-  const handleNextStep = () => {
-    if (step === "cart") {
-      if (cart.length === 0) {
-        toast.error("Seu carrinho está vazio!", {
-          position: "top-right",
-          autoClose: 2000,
-        });
-        return;
+  const userAddres = async () => {
+    try {
+      const body = { username: user.username };
+      const response = await apiAxios({
+        rota: "api/user-address/",
+        metodo: "POST",
+        body: body,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleNextStep = async () => {
+    if (step === "cart" && !user) {
+      navigate("/login");
+    } else {
+      if (step === "cart") {
+        if (cart.length === 0) {
+          toast.error("Seu carrinho está vazio!", {
+            position: "top-right",
+            autoClose: 2000,
+          });
+          return;
+        }
+        const response = await userAddres();
+        const address = {
+          fullName: response.fullname,
+          street: response.street,
+          city: response.city,
+          neighborhood: response.neighborhood,
+          state: response.state,
+          number: response.number,
+        };
+        setShippingData(address);
+        setStep("shipping");
+      } else if (step === "shipping") {
+        const { fullName, street, city, state, neighborhood, number } =
+          shippingData;
+        if (
+          !fullName ||
+          !street ||
+          !city ||
+          !state ||
+          !neighborhood ||
+          !number
+        ) {
+          toast.error("Por favor, preencha todos os campos obrigatórios.", {
+            position: "top-right",
+            autoClose: 2000,
+          });
+          return;
+        }
+        setStep("confirmation");
       }
-      setStep("shipping");
-    } else if (step === "shipping") {
-      // Validação simples dos dados de envio
-      const { fullName, address, city, state, zipCode, country } = shippingData;
-      if (
-        !fullName ||
-        !address ||
-        !city ||
-        !state ||
-        !zipCode ||
-        !country
-      ) {
-        toast.error("Por favor, preencha todos os campos obrigatórios.", {
-          position: "top-right",
-          autoClose: 2000,
-        });
-        return;
-      }
-      setStep("confirmation");
     }
   };
 
@@ -98,21 +126,14 @@ const Cart = () => {
     }
   };
 
-  const handleConfirmOrder = () => {
+  const handleCheckout = async () => {
     setOrderSummary({
       cart,
       shippingData,
       subtotal,
-      total: subtotal, // Aqui você pode adicionar cálculos de frete, impostos, etc.
+      total: subtotal,
     });
-    setStep("finalize");
-  };
-
-  const handleCheckout = async () => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+    
     const itens = cart.map((item) => ({
       product: item.volumeInfo.title,
       quantity: item.quantity,
@@ -124,7 +145,6 @@ const Cart = () => {
       user_id: user.user_id,
       items: itens,
       shipping: shippingData,
-      // Adicione mais campos conforme necessário
     };
     try {
       const response = await apiAxios({
@@ -140,6 +160,7 @@ const Cart = () => {
           position: "top-right",
           autoClose: 2000,
         });
+        setOrderId(response.data.order_id);
         setStep("success");
       }
     } catch (error) {
@@ -161,8 +182,6 @@ const Cart = () => {
           <div className="d-flex justify-content-center">
             <h2 className="text-center py-5 mb-3">Carrinho de compras</h2>
           </div>
-          
-          {/* Etapa do Carrinho */}
           {step === "cart" && (
             <div className="overflow-x">
               {cart.length > 0 ? (
@@ -233,7 +252,10 @@ const Cart = () => {
                   </div>
 
                   <div className="d-flex justify-content-end mt-4">
-                    <button className="btn btn-success" onClick={handleNextStep}>
+                    <button
+                      className="btn btn-success"
+                      onClick={handleNextStep}
+                    >
                       Próximo
                       <i className="fa-solid fa-arrow-right p-2"></i>
                     </button>
@@ -245,9 +267,7 @@ const Cart = () => {
                     className="d-flex flex-column align-items-center"
                     style={{ gap: "16px" }}
                   >
-                    <h5 className="text-center">
-                      Seu carrinho está vazio!
-                    </h5>
+                    <h5 className="text-center">Seu carrinho está vazio!</h5>
                     <h5 className="text-center">
                       <a href="/">Voltar ao catálogo</a>
                     </h5>
@@ -257,13 +277,14 @@ const Cart = () => {
             </div>
           )}
 
-          {/* Etapa de Envio */}
           {step === "shipping" && (
             <div className="shipping-form">
               <h3>Dados de Entrega</h3>
               <form>
                 <div className="mb-3">
-                  <label htmlFor="fullName" className="form-label">Nome Completo</label>
+                  <label htmlFor="fullName" className="form-label">
+                    Nome Completo
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -275,19 +296,23 @@ const Cart = () => {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="address" className="form-label">Endereço</label>
+                  <label htmlFor="street" className="form-label">
+                    Endereço
+                  </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="address"
-                    name="address"
-                    value={shippingData.address}
+                    id="stree"
+                    name="street"
+                    value={shippingData.street}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="city" className="form-label">Cidade</label>
+                  <label htmlFor="city" className="form-label">
+                    Cidade
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -299,7 +324,9 @@ const Cart = () => {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="state" className="form-label">Estado</label>
+                  <label htmlFor="state" className="form-label">
+                    Estado
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -311,59 +338,33 @@ const Cart = () => {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="zipCode" className="form-label">CEP</label>
+                  <label htmlFor="neighborhood" className="form-label">
+                    Bairro
+                  </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="zipCode"
-                    name="zipCode"
-                    value={shippingData.zipCode}
+                    id="neighborhood"
+                    name="neighborhood"
+                    value={shippingData.neighborhood}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="country" className="form-label">País</label>
+                  <label htmlFor="number" className="form-label">
+                    Número
+                  </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="country"
-                    name="country"
-                    value={shippingData.country}
+                    id="number"
+                    name="number"
+                    value={shippingData.number}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
-                <div className="mb-3 form-check">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="sameAsBilling"
-                    name="sameAsBilling"
-                    checked={shippingData.sameAsBilling}
-                    onChange={handleInputChange}
-                  />
-                  <label className="form-check-label" htmlFor="sameAsBilling">
-                    Usar o mesmo endereço para faturamento
-                  </label>
-                </div>
-                {!shippingData.sameAsBilling && (
-                  <>
-                    <h4>Dados de Faturamento</h4>
-                    <div className="mb-3">
-                      <label htmlFor="billingAddress" className="form-label">Endereço de Faturamento</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="billingAddress"
-                        name="billingAddress"
-                        value={shippingData.billingAddress}
-                        onChange={handleInputChange}
-                        required={!shippingData.sameAsBilling}
-                      />
-                    </div>
-                  </>
-                )}
               </form>
               <div className="d-flex justify-content-between mt-4">
                 <button className="btn btn-secondary" onClick={handlePrevStep}>
@@ -376,23 +377,22 @@ const Cart = () => {
               </div>
             </div>
           )}
-
-          {/* Etapa de Confirmação */}
           {step === "confirmation" && (
             <div className="confirmation">
-              <h3>Confirme seus Dados</h3>
+              <h3 className="mb-2">Confirme seus Dados</h3>
               <div className="mb-3">
                 <h4>Dados de Entrega</h4>
-                <p><strong>Nome:</strong> {shippingData.fullName}</p>
-                <p><strong>Endereço:</strong> {shippingData.address}, {shippingData.city}, {shippingData.state}, {shippingData.zipCode}, {shippingData.country}</p>
-                {!shippingData.sameAsBilling && (
-                  <>
-                    <h4>Dados de Faturamento</h4>
-                    <p><strong>Endereço:</strong> {shippingData.billingAddress}</p>
-                  </>
-                )}
+                <p>
+                  <strong>Nome:</strong> {shippingData.fullName}
+                </p>
+                <p>
+                  <strong>Endereço:</strong> {shippingData.street},&nbsp;
+                  {shippingData.number},&nbsp;{shippingData.city},&nbsp;{" "}
+                  {shippingData.state},&nbsp;
+                  {shippingData.neighborhood}
+                </p>
               </div>
-              <div className="mb-3">
+              <div className="mb-3 py-5">
                 <h4>Resumo do Pedido</h4>
                 <table className="table">
                   <thead>
@@ -407,7 +407,12 @@ const Cart = () => {
                       <tr key={index}>
                         <td>{item.volumeInfo.title}</td>
                         <td>{item.quantity}</td>
-                        <td>R${(item.saleInfo.listPrice.amount * item.quantity).toFixed(2)}</td>
+                        <td>
+                          R$
+                          {(
+                            item.saleInfo.listPrice.amount * item.quantity
+                          ).toFixed(2)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -420,35 +425,18 @@ const Cart = () => {
                 <button className="btn btn-secondary" onClick={handlePrevStep}>
                   Voltar
                 </button>
-                <button className="btn btn-primary" onClick={handleConfirmOrder}>
-                  Confirmar Pedido
-                  <i className="fa-solid fa-check p-2"></i>
+                <button className="btn btn-success" onClick={handleCheckout}>
+                  Finalizar Compra
+                  <i className="fa-solid fa-arrow-right p-2"></i>
                 </button>
               </div>
             </div>
           )}
-
-          {/* Etapa de Finalização */}
-          {step === "finalize" && orderSummary && (
-            <div className="finalize">
-              <h3>Finalizar Compra</h3>
-              <button className="btn btn-success" onClick={handleCheckout}>
-                Finalizar Compra
-                <i className="fa-solid fa-arrow-right p-2"></i>
-              </button>
-              <button className="btn btn-secondary mt-3" onClick={() => setStep("confirmation")}>
-                Voltar
-              </button>
-            </div>
-          )}
-
-          {/* Etapa de Sucesso */}
           {step === "success" && (
             <div className="success">
               <h3>Compra Realizada com Sucesso!</h3>
-              <p>Obrigado por sua compra, {user?.name}!</p>
-              <p>Número do Pedido: #{Math.floor(Math.random() * 1000000)}</p>
-              <p>Você receberá uma confirmação por e-mail em breve.</p>
+              <p>Obrigado por sua compra, {user?.firstname}!</p>
+              <p>Número do Pedido: #{order_id}</p>
               <button className="btn btn-primary" onClick={() => navigate("/")}>
                 Voltar ao Catálogo
               </button>

@@ -72,39 +72,46 @@ const Orders = () => {
           className="col-md-8 offset-md-2 d-flex flex-column"
           style={{ gap: "32px" }}
         >
-          <table id="orders-table" className="table">
-            <thead>
-              <tr>
-                <th scope="col">Data</th>
-                <th scope="col">Livro</th>
-                <th scope="col">Valor</th>
-                <th scope="col">Quantidade</th>
-                <th scope="col">Preço</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orderData.map((item, index) => (
-                <tr key={index}>
-                  <td>{formatDate(item.data)}</td>
-                  <td>{item.product}</td>
-                  <td>R${item.unit_price}</td>
-                  <td>{item.quantity} (und)</td>
-                  <td>R${(item.unit_price * item.quantity).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {orderData.map((order, index) => (
+            <div key={index} className="order-section">
+              <h4>Data da compra: {formatDate(order.data)}</h4>
+              <h5>Entrgue em:</h5>
+              <p>
+                {order.address.fullName}, {order.address.street},{" "}
+                {order.address.number}, {order.address.neighborhood},{" "}
+                {order.address.city} - {order.address.state}
+              </p>
+              <table className="table" id="orders-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Livro</th>
+                    <th scope="col">Valor</th>
+                    <th scope="col">Quantidade</th>
+                    <th scope="col">Preço</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order.items.map((item, itemIndex) => (
+                    <tr key={itemIndex}>
+                      <td>{item.product}</td>
+                      <td>R${item.unit_price}</td>
+                      <td>{item.quantity} (und)</td>
+                      <td>R${(item.unit_price * item.quantity).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
       </div>
       <div className="row m-3">
         <div className="col col-md-3 col-lg-2 offset-md-8 d-flex flex-column">
-
           <button onClick={exportToPDF} className="btn btn-success">
             Exportar PDF
             <i className="fa-solid fa-file-pdf m-2"></i>
           </button>
         </div>
-
       </div>
     </>
   );
