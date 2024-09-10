@@ -27,7 +27,13 @@ npm install
 Navegue até a pasta src/services e abra o arquivo API.jsx. Verifique se a baseURL dentro desse arquivo está apontando corretamente para a URL da aplicação Django que você configurou. A linha deve ser algo semelhante a:
 
 ```bash
-const urlBase = 'http://127.0.0.1:8000/api/';
+const urlBase = 'http://localhost:8000';
+```
+
+Ou
+
+```bash
+const urlBase = 'http://127.0.0.1:8000';
 ```
 Se a URL da API for diferente, ajuste-a conforme necessário para garantir a comunicação entre o frontend e o backend.
 
