@@ -9,7 +9,7 @@ import { formatDate } from "../../../utils/Convert";
 
 const Catalog = () => {
   const { addToCart } = useContext(CartContext);
-  const { books } = useContext(FilterContext);
+  const { books, error } = useContext(FilterContext);
   const [showModal, setShowModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [cart, setCart] = useState(() => {
@@ -54,15 +54,10 @@ const Catalog = () => {
         <div className="row">
           {books && books.length ? (
             books.map((item, index) => (
-              <div
-                key={index}
-                className="col-lg-3 col-md-3 col-sm-4 col-6 mb-3"
-              >
+              <div key={index} className="col-lg-3 col-md-3 col-sm-4 col-6 mb-3">
                 <div className="card h-100">
                   <img
-                    src={
-                      item.volumeInfo?.imageLinks?.thumbnail || "default.jpg"
-                    }
+                    src={item.volumeInfo?.imageLinks?.thumbnail || "default.jpg"}
                     className="card-img-top"
                     alt={item.volumeInfo?.title || "Livro"}
                     style={{ height: "200px", objectFit: "cover" }}
@@ -74,8 +69,7 @@ const Catalog = () => {
                     </h5>
                     <p>Autor(es): </p>
                     <h6 className="card-title">
-                      {item.volumeInfo?.authors?.join(", ") ||
-                        "Autor desconhecido"}
+                      {item.volumeInfo?.authors?.join(", ") || "Autor desconhecido"}
                     </h6>
                   </div>
                   <div className="card-footer">
@@ -86,19 +80,25 @@ const Catalog = () => {
                       >
                         <i className="fa fa-eye"></i> Visualizar
                       </button>
-                      <button
-                        className="btn btn-light btn-sm"
-                        onClick={() => handleAddToCart(item)}
-                      >
-                        <i className="fa fa-cart-plus"></i> Carrinho
-                      </button>
+                      {item.saleInfo.saleability == "FOR_SALE" ? (
+                        <button
+                          className="btn btn-light btn-sm"
+                          onClick={() => handleAddToCart(item)}
+                        >
+                          <i className="fa fa-cart-plus"></i> Carrinho
+                        </button>
+                      ) : (
+                        <></>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
             ))
+          ) : error ? (
+            <p>{error}</p>
           ) : (
-            <Loading />
+            <p>Não há livro disponível no momento.</p>
           )}
         </div>
       </div>
@@ -166,12 +166,13 @@ const Catalog = () => {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button
-              variant="success"
-              onClick={() => handleAddToCart(selectedBook)}
-            >
-              <i className="fa fa-cart-plus px-2"></i>Adicionar ao Carrinho
-            </Button>
+            {selectedBook.saleInfo.saleability == "FOR_SALE" ? (
+              <Button variant="success" onClick={() => handleAddToCart(selectedBook)}>
+                <i className="fa fa-cart-plus px-2"></i>Adicionar ao Carrinho
+              </Button>
+            ) : (
+              <></>
+            )}
             <Button variant="secondary" onClick={() => setShowModal(false)}>
               Fechar
             </Button>

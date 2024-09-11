@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AccountContext } from "../../context/AccountContext";
 import { useNavigate } from "react-router-dom";
 import apiAxios from "../../services/API";
@@ -8,6 +8,7 @@ const AddressForm = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    fullName: "",
     street: "",
     city: "",
     neighborhood: "",
@@ -15,6 +16,15 @@ const AddressForm = () => {
     number: "",
   });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (accountData.personal.firstName && accountData.personal.lastName) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: `${accountData.personal.firstName} ${accountData.personal.lastName}`,
+      }));
+    }
+  }, [accountData.personal.firstName, accountData.personal.lastName]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,11 +42,11 @@ const AddressForm = () => {
         metodo: "POST",
         body: finalData,
       });
-      if(response.status == 201){
-        navigate('/login');
+      if (response.status === 201) {
+        navigate("/login");
       }
     } catch (error) {
-      if (error.response.status == 400) {
+      if (error.response.status === 400) {
         setErrors({ fields: error.response.data.error });
       }
     }
@@ -51,7 +61,16 @@ const AddressForm = () => {
               <div className="card-body p-5">
                 <h2 className="text-center mb-5">Dados de Endereço</h2>
                 <form>
-                  <div data-mdb-input-init className="form-outline mb-3">
+                  <div className="form-outline mb-3">
+                    <input
+                      name="fullName"
+                      type="text"
+                      className="form-control form-control-md"
+                      value={formData.fullName}
+                      readOnly
+                    />
+                  </div>
+                  <div className="form-outline mb-3">
                     <input
                       name="street"
                       placeholder="Endereço"
@@ -61,7 +80,7 @@ const AddressForm = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div data-mdb-input-init className="form-outline mb-3">
+                  <div className="form-outline mb-3">
                     <input
                       name="number"
                       placeholder="Numero"
@@ -71,7 +90,7 @@ const AddressForm = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div data-mdb-input-init className="form-outline mb-3">
+                  <div className="form-outline mb-3">
                     <input
                       name="city"
                       placeholder="Cidade"
@@ -81,7 +100,7 @@ const AddressForm = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div data-mdb-input-init className="form-outline mb-3">
+                  <div className="form-outline mb-3">
                     <input
                       name="neighborhood"
                       placeholder="Bairro"
@@ -91,7 +110,7 @@ const AddressForm = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div data-mdb-input-init className="form-outline mb-3">
+                  <div className="form-outline mb-3">
                     <input
                       name="state"
                       placeholder="Estado"
@@ -102,14 +121,12 @@ const AddressForm = () => {
                     />
                   </div>
                   {errors.fields && (
-                      <p className="text-danger">{errors.fields}</p>
-                    )}
+                    <p className="text-danger">{errors.fields}</p>
+                  )}
                   <div className="d-flex justify-content-center">
                     <button
                       type="button"
-                      data-mdb-button-init
-                      data-mdb-ripple-init
-                      className="btn btn-success btn-block btn-lg gradient-custom-4"
+                      className="btn btn-success btn-block btn-lg"
                       onClick={handleSubmit}
                     >
                       Finalizar Cadastro

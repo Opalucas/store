@@ -1,9 +1,19 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 
 import { FilterContext } from "../../../context/FilterContext";
 
 const Filters = () => {
   const { filters, setFilters } = useContext(FilterContext);
+  const [check, setCheck] = useState(false);
+
+  useEffect(() => {
+    const forSale = check ? "1" : "";
+    setFilters({ ...filters, forSale: forSale });
+  }, [check]);
+  
+  const handleChecked = (e) => {
+    setCheck(e.target.checked);
+  };
 
   return (
     <>
@@ -61,16 +71,19 @@ const Filters = () => {
       </div>
 
       <div className="mb-3">
-        <label className="form-label">Disponível para venda</label>
-        <select
-          className="form-select"
-          value={filters.forSale}
-          onChange={(e) => setFilters({ ...filters, forSale: e.target.value })}
-        >
-          <option value="">Todos</option>
-          <option value="1">Sim</option>
-          <option value="">Não</option>
-        </select>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            value=""
+            id="flexCheckDefault"
+            checked={check}
+            onChange={handleChecked}
+          />
+          <label className="form-check-label" htmlFor="flexCheckDefault">
+            Disponível para venda
+          </label>
+        </div>
       </div>
     </>
   );
